@@ -4,6 +4,10 @@ Ein Hochdruckreiniger-Simulator im Browser. Erste Person, prozedural erzeugte
 Szene, Dreck der sich unter dem Strahl auflöst, und Ton, der komplett im Spiel
 erzeugt wird.
 
+**Online spielen:** https://levithomas15.github.io/putzen/
+
+Lokal:
+
 ```bash
 npm install
 npm run dev      # http://127.0.0.1:5173
@@ -111,9 +115,13 @@ Dazu zwei Regeln fürs Weiterbauen:
 ## Prüfen
 
 ```bash
-npm test         # Funktionstest: Shader, Fortschritt, Verdeckung
-npm run shot     # Screenshots nach shots/
+npm test              # Funktionstest: Shader, Fortschritt, Verdeckung
+npm run shot          # Screenshots nach shots/
+npm run build && npm run check:build   # prüft die gebaute Seite
 ```
+
+Jeder Push auf den Standard-Branch baut und veröffentlicht die Seite über
+`.github/workflows/deploy.yml` auf GitHub Pages.
 
 Beide laufen headless über Chromium. Dort rendert WebGL per SwiftShader in
 Software: Bilder und Verhalten stimmen, **Bildraten sind nicht aussagekräftig**.

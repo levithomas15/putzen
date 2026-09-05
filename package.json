@@ -10,6 +10,7 @@
     "preview": "vite preview",
     "shot": "node scripts/shot.mjs",
     "lint": "node scripts/check-syntax.mjs",
+    "check:build": "node scripts/check-build.mjs",
     "test": "node scripts/check-syntax.mjs && node scripts/smoke.mjs"
   },
   "dependencies": {
