@@ -41,7 +41,7 @@ export function buildDeck({
     label: 'Terrassendeck',
     id: `deck-${i}`,
     cleanable: true,
-    dirt: { amount: 0.92, streaks: 0.25, enclosing: true },
+    dirt: { amount: 0.72, streaks: 0.25, enclosing: true },
   }));
 
   // Umlaufende Blende, die die Dielenenden verdeckt.

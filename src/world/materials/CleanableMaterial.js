@@ -68,7 +68,7 @@ const DIRT_ALBEDO = /* glsl */ `
   vec3 pzDirtCol = mix(uDirtColor, uAlgaeColor, clamp(pzVar * 1.4 - 0.15, 0.0, 1.0));
   pzDirtCol *= 0.72 + 0.5 * pzGrime;
 
-  diffuseColor.rgb = mix(diffuseColor.rgb, pzDirtCol, pzDirt * 0.94);
+  diffuseColor.rgb = mix(diffuseColor.rgb, pzDirtCol, pzDirt * 0.86);
 
   // Nass: dunkler und tiefer gesättigt, wie echtes Wasser auf Stein
   diffuseColor.rgb *= mix(1.0, uWetDarken, pzWet);
@@ -97,11 +97,11 @@ const DIRT_NORMAL = /* glsl */ `
 `;
 
 export const DIRT_DEFAULTS = {
-  dirtColor: 0x3c3327,
+  dirtColor: 0x4a4033,
   algaeColor: 0x44502a,
   dirtRoughness: 0.96,
   dirtNoiseScale: 14,
-  dirtContrast: 3.2,
+  dirtContrast: 2.4,
   wetDarken: 0.68,
   wetGloss: 0.22,
 };
