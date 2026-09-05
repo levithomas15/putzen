@@ -84,6 +84,30 @@ src/
 └── ui/         HUD
 ```
 
+## Fallstricke
+
+Drei Dinge, die stillschweigend schiefgehen und die hier bereits eingebaut sind:
+
+- **`renderer.render()` löscht das Ziel.** Beim Malen in eine Maske muss
+  `autoClear` aus sein — sonst wischt jeder Streifen des Strahls das komplette
+  Objekt sauber, statt einen Fußabdruck zu setzen.
+- **`overrideMaterial` wirkt nur auf einer echten `Scene`.** three prüft
+  `scene.isScene === true`. Auf einer `Group` gesetzt wird es kommentarlos
+  ignoriert; der Tiefendurchgang enthielt dann Farbwerte statt Entfernungen und
+  die Verdeckungsprüfung verwarf fast jedes Fragment.
+- **Die Sonnenscheibe muss beim Backen der Environment-Map aus sein.** Sie
+  übersteuert das Half-Float-Ziel, und die entstehenden Unendlichkeiten ziehen
+  sich durch die Beleuchtungsintegration — jede Fläche wird pechschwarz.
+
+Dazu zwei Regeln fürs Weiterbauen:
+
+- **Keine Backticks in GLSL-Kommentaren.** Der Shader steckt in einem
+  Template-Literal; ein Backtick beendet es, und der Rest wird als JavaScript
+  gelesen. `npm run lint` fängt das in einer Sekunde.
+- **Rauschfrequenzen unter der Abtastgrenze halten.** Die höchste Oktave, also
+  `Frequenz * 2^(Oktaven-1)`, sollte höchstens ein Viertel der Texturauflösung
+  erreichen. Darüber wird jedes Muster zu weißem Flimmern.
+
 ## Prüfen
 
 ```bash
