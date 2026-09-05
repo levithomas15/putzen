@@ -26,6 +26,10 @@ const flag = (name) => args.includes(`--${name}`);
 const OUT = 'shots';
 const PORT = 5199;
 const QUALITY = opt('quality', 'medium');
+// Auf SwiftShader ist das Backen der Texturen der Flaschenhals -- fürs
+// Iterieren kleiner, für Abnahmebilder auf 1 stellen.
+const BAKE = opt('bake', '0.25');
+const MASK = opt('mask', '0.35');
 const SPRAY_SECONDS = Number(opt('spray', 4));
 const WIDTH = Number(opt('w', 1280));
 const HEIGHT = Number(opt('h', 720));
@@ -77,11 +81,22 @@ async function main() {
     console.log('  ✖ ' + e.message);
   });
 
-  await page.goto(`http://127.0.0.1:${PORT}/?q=${QUALITY}&nolock=1`, { waitUntil: 'load' });
+  await page.goto(`http://127.0.0.1:${PORT}/?q=${QUALITY}&bake=${BAKE}&mask=${MASK}&nolock=1`, { waitUntil: 'load' });
 
-  // Auf das fertig gebaute Level warten.
-  await page.waitForFunction(() => window.__putzen?.ready === true, null, { timeout: 180000 });
-  console.log('▶ Level bereit');
+  // Auf das fertig gebaute Level warten und dabei melden, wo es gerade steht.
+  const t0 = Date.now();
+  const ticker = setInterval(async () => {
+    try {
+      const label = await page.evaluate(() => document.getElementById('boot-label')?.textContent);
+      console.log(`  … ${((Date.now() - t0) / 1000).toFixed(0)}s: ${label}`);
+    } catch { /* Seite gerade beschäftigt */ }
+  }, 4000);
+  try {
+    await page.waitForFunction(() => window.__putzen?.ready === true, null, { timeout: 420000 });
+  } finally {
+    clearInterval(ticker);
+  }
+  console.log(`▶ Level bereit nach ${((Date.now() - t0) / 1000).toFixed(1)}s`);
 
   const shot = async (name) => {
     await page.screenshot({ path: `${OUT}/${name}.png` });
@@ -94,16 +109,19 @@ async function main() {
   await shot('00-menue');
 
   // Ins Spiel: Overlay weg, HUD an.
-  await page.click('#start');
+  // Direkt auslösen: mit dem Software-Renderer ist der Hauptthread zu
+  // beschäftigt für Playwrights Stabilitätsprüfung.
+  await page.evaluate(() => document.getElementById('start').click());
   await page.waitForTimeout(800);
   await drive({ frames: 5 });
   await shot('01-start');
 
-  await drive({ look: [0.5, 0.05], frames: 20 });
-  await shot('02-umsehen');
+  await drive({ look: [0, 0.12], frames: 12 });
+  await shot('02-terrasse');
 
-  await drive({ move: [0, 1], frames: 60 });
-  await shot('03-terrasse');
+  await drive({ move: [0, 1], frames: 45 });
+  await drive({ look: [-0.55, 0.1], frames: 12 });
+  await shot('03-naeher');
 
   if (SPRAY_SECONDS > 0) {
     await drive({ spray: true, look: [0, 0.35], frames: 10 });

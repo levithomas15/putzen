@@ -16,9 +16,10 @@ export const QUALITY = {
     shadowMap: 1024,
     ao: false,
     bloom: true,
-    bloomStrength: 0.32,
+    bloomStrength: 0.14,
     smaa: false,
     maskScale: 0.5,
+    bakeScale: 0.5,
     sprayParticles: 220,
     mistParticles: 90,
   },
@@ -28,9 +29,10 @@ export const QUALITY = {
     ao: true,
     aoSamples: 8,
     bloom: true,
-    bloomStrength: 0.4,
+    bloomStrength: 0.17,
     smaa: true,
     maskScale: 1,
+    bakeScale: 1,
     sprayParticles: 480,
     mistParticles: 200,
   },
@@ -40,9 +42,10 @@ export const QUALITY = {
     ao: true,
     aoSamples: 16,
     bloom: true,
-    bloomStrength: 0.46,
+    bloomStrength: 0.2,
     smaa: true,
     maskScale: 1.5,
+    bakeScale: 2,
     sprayParticles: 900,
     mistParticles: 380,
   },
@@ -63,9 +66,13 @@ export class Stage {
     });
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.0;
+    // Empirisch eingestellt (siehe Belichtungsreihe): der Himmel aus dem
+    // Streuungsmodell liefert Strahldichten weit über 1, bei Belichtung 1.0
+    // brennt jede Fläche aus. 0.55 ergibt Mitteltöne um 120 bei einem Himmel
+    // um 190 — also Reserve nach oben für nasse Glanzlichter und Bloom.
+    this.renderer.toneMappingExposure = 0.55;
     this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.renderer.shadowMap.type = THREE.PCFShadowMap; // PCFSoft ist in three 185 veraltet
 
     this.scene = new THREE.Scene();
 
@@ -102,11 +109,13 @@ export class Stage {
     if (q.ao) {
       this.gtao = new GTAOPass(this.scene, this.camera, w, h);
       this.gtao.output = GTAOPass.OUTPUT.Default;
-      this.gtao.blendIntensity = 0.85;
+      this.gtao.blendIntensity = 0.55;
       this.gtao.updateGtaoMaterial({
-        radius: 0.4,
+        // Kleiner Radius: die Verdeckung soll Kanten und Fugen andeuten,
+        // nicht ganze Spalten auf Schwarz ziehen.
+        radius: 0.25,
         distanceExponent: 1.2,
-        thickness: 0.35,
+        thickness: 0.3,
         scale: 1.0,
         samples: q.aoSamples ?? 8,
         screenSpaceRadius: false,
@@ -121,9 +130,15 @@ export class Stage {
       // nicht das ganze Bild in Watte packen.
       this.bloom = new BloomPass(w, h, {
         strength: q.bloomStrength,
-        threshold: 0.9,
-        knee: 0.55,
+        // Der Himmel aus dem Streuungsmodell liegt im Linearraum bei
+        // Werten weit über 1. Eine Schwelle knapp unter 1 lässt ihn
+        // vollständig durch, und die breite Unschärfe legt daraufhin einen
+        // milchigen Schleier über das ganze Bild. Höhere Schwelle plus enge
+        // Deckelung lassen nur noch echte Glanzlichter leuchten.
+        threshold: 2.2,
+        knee: 0.7,
         radius: 1.0,
+        clamp: 5.0,
         levels: this.quality === 'low' ? 4 : 5,
       });
       this.composer.addPass(this.bloom);

@@ -9,7 +9,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "shot": "node scripts/shot.mjs",
-    "test": "node scripts/smoke.mjs"
+    "lint": "node scripts/check-syntax.mjs",
+    "test": "node scripts/check-syntax.mjs && node scripts/smoke.mjs"
   },
   "dependencies": {
     "three": "^0.185.1",

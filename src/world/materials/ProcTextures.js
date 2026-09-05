@@ -14,15 +14,12 @@ import { NOISE_GLSL } from './glsl-noise.js';
  * Die Höhe läuft über ein Half-Float-Target, damit die Normalen nicht stufen.
  */
 
-const QUAD_VERT = /* glsl */ `
-varying vec2 vUv;
-void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }
-`;
-
+// Achtung: die Backpässe laufen als GLSL 3.00 (RawShaderMaterial mit
+// glslVersion GLSL3). Dort ist `varying` ein reserviertes Wort — die Eingänge
+// des Fragment-Shaders heißen `in`.
 const PREAMBLE = /* glsl */ `
 precision highp float;
-varying vec2 vUv;
-uniform float uRepeat;   // Kachelperiode: hält das Rauschen nahtlos
+in vec2 vUv;
 ${NOISE_GLSL}
 `;
 
@@ -31,6 +28,10 @@ export class TextureBaker {
     this.renderer = renderer;
     this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
     this.quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), null);
+    // Der Vertex-Shader schreibt gl_Position direkt; die Kamera ist bedeutungslos.
+    // Ohne dieses Flag entscheidet trotzdem die Sichtbarkeitsprüfung mit — und
+    // ein weggeculltes Quad hinterlässt eine leere Textur.
+    this.quad.frustumCulled = false;
     this.scene = new THREE.Scene();
     this.scene.add(this.quad);
     this.maxAniso = renderer.capabilities.getMaxAnisotropy();
@@ -68,12 +69,11 @@ export class TextureBaker {
    */
   bake(surfaceGlsl, opts = {}) {
     const size = opts.size ?? 512;
-    const tile = opts.tile ?? 8;
     const normalStrength = opts.normalStrength ?? 1.0;
     const extra = opts.uniforms ?? {};
 
     const uniforms = () => {
-      const u = { uRepeat: { value: tile } };
+      const u = {};
       for (const [k, v] of Object.entries(extra)) u[k] = { value: v };
       return u;
     };

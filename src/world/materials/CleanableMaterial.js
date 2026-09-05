@@ -97,8 +97,8 @@ const DIRT_NORMAL = /* glsl */ `
 `;
 
 export const DIRT_DEFAULTS = {
-  dirtColor: 0x30281e,
-  algaeColor: 0x3f4a24,
+  dirtColor: 0x3c3327,
+  algaeColor: 0x44502a,
   dirtRoughness: 0.96,
   dirtNoiseScale: 14,
   dirtContrast: 3.2,

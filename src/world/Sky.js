@@ -10,8 +10,12 @@ import { Sky } from 'three/examples/jsm/objects/Sky.js';
  */
 export function buildSky(scene, renderer, opts = {}) {
   const {
-    elevation = 26, // Grad über dem Horizont
-    azimuth = 152,
+    // Die Sonne muss von der offenen Seite (+Z) kommen. Steht sie hinter der
+    // Rückwand, wirft diese ihren Schatten über die komplette Terrasse — bei
+    // 2,7 m Höhe und flachem Stand reicht der über das ganze Deck, und man
+    // putzt im Dunkeln.
+    elevation = 38,
+    azimuth = 35,
     turbidity = 3.2,
     rayleigh = 1.35,
     mieCoefficient = 0.006,
@@ -34,15 +38,24 @@ export function buildSky(scene, renderer, opts = {}) {
   scene.add(sky);
 
   // --- Environment-Map aus dem Himmel backen ---
+  //
+  // Die Sonnenscheibe muss dafür aus sein. Sie ist um Größenordnungen heller
+  // als der restliche Himmel; im Half-Float-Ziel der PMREM-Kette läuft sie über
+  // und die entstehenden Unendlichkeiten ziehen sich durch die
+  // Beleuchtungsintegration — jede Fläche wird dann pechschwarz gerendert.
+  // Das direkte Sonnenlicht kommt ohnehin aus dem DirectionalLight weiter unten.
+  sky.material.uniforms.showSunDisc.value = 0;
+
   const pmrem = new THREE.PMREMGenerator(renderer);
-  pmrem.compileEquirectangularShader();
   const envRT = pmrem.fromScene(sky, 0.04);
   scene.environment = envRT.texture;
-  scene.environmentIntensity = 0.85;
+  scene.environmentIntensity = 0.7;
   pmrem.dispose();
 
+  sky.material.uniforms.showSunDisc.value = 1; // im Bild soll sie zu sehen sein
+
   // --- Sonne ---
-  const sun = new THREE.DirectionalLight(0xfff2dc, 3.4);
+  const sun = new THREE.DirectionalLight(0xfff2dc, 3.0);
   sun.position.copy(sunDir).multiplyScalar(40);
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
@@ -61,7 +74,7 @@ export function buildSky(scene, renderer, opts = {}) {
 
   // Weiches Himmels-/Bodenlicht als Ergänzung zur Env-Map: hebt Schattenseiten
   // an, ohne dass Flächen flach werden.
-  const hemi = new THREE.HemisphereLight(0xbcd8f0, 0x50412f, 0.55);
+  const hemi = new THREE.HemisphereLight(0xbcd8f0, 0x50412f, 0.45);
   scene.add(hemi);
 
   // Leichter Dunst in Sonnenrichtung — gibt Tiefe und lässt den Nebel wirken.
