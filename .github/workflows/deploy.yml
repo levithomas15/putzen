@@ -40,8 +40,16 @@ jobs:
 
       - uses: actions/configure-pages@v5
         with:
-          # Schaltet Pages beim ersten Lauf selbst frei, damit dafür niemand
-          # in die Repo-Einstellungen muss.
+          # Versucht, Pages selbst freizuschalten. Das schlägt mit dem normalen
+          # GITHUB_TOKEN fehl ("Resource not accessible by integration") —
+          # eine Pages-Seite anzulegen ist ihm nicht erlaubt. Einmalig muss das
+          # deshalb von Hand passieren:
+          #
+          #   Settings -> Pages -> Build and deployment -> Source: GitHub Actions
+          #
+          # Danach findet dieser Schritt die vorhandene Seite und läuft durch;
+          # die Zeile bleibt stehen, damit es ohne den Handgriff klappt, sobald
+          # der Token je die nötigen Rechte bekommt.
           enablement: true
 
       - uses: actions/upload-pages-artifact@v3
