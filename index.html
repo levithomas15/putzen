@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Putzen — Hochdruckreiniger</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>💦</text></svg>" />
+  <link rel="stylesheet" href="/src/ui/style.css" />
+</head>
+<body>
+  <canvas id="scene"></canvas>
+
+  <!-- Ladebildschirm -->
+  <div id="boot" class="overlay">
+    <div class="boot-inner">
+      <div class="boot-mark">💦</div>
+      <div class="boot-bar"><i id="boot-fill"></i></div>
+      <div id="boot-label" class="boot-label">Szene wird gebaut…</div>
+    </div>
+  </div>
+
+  <!-- Startmenü -->
+  <div id="menu" class="overlay hidden">
+    <div class="menu-card">
+      <h1>PUTZEN</h1>
+      <p class="sub">Hochdruckreiniger-Simulator</p>
+      <button id="start" class="primary">Spiel starten</button>
+      <div class="controls">
+        <div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><span>Bewegen</span></div>
+        <div><kbd>Maus</kbd><span>Umsehen</span></div>
+        <div><kbd>Linksklick</kbd><span>Spritzen</span></div>
+        <div><kbd>1</kbd>–<kbd>4</kbd> / <kbd>Rad</kbd><span>Düse wechseln</span></div>
+        <div><kbd>Shift</kbd><span>Rennen</span></div>
+        <div><kbd>Leertaste</kbd><span>Springen</span></div>
+        <div><kbd>Tab</kbd><span>Checkliste</span></div>
+        <div><kbd>Esc</kbd><span>Pause</span></div>
+      </div>
+      <div class="quality">
+        <span>Qualität</span>
+        <button data-q="low">Niedrig</button>
+        <button data-q="medium" class="on">Mittel</button>
+        <button data-q="high">Hoch</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HUD -->
+  <div id="hud" class="hidden">
+    <div id="crosshair"></div>
+
+    <div id="progress-wrap">
+      <svg viewBox="0 0 120 120" id="ring">
+        <circle class="ring-bg" cx="60" cy="60" r="52" />
+        <circle class="ring-fg" cx="60" cy="60" r="52" id="ring-fg" />
+      </svg>
+      <div id="ring-text"><b id="pct">0</b><span>%</span></div>
+      <div id="ring-label">sauber</div>
+    </div>
+
+    <div id="checklist"></div>
+
+    <div id="nozzles"></div>
+
+    <div id="hint" class="hint"></div>
+    <div id="toast-wrap"></div>
+  </div>
+
+  <!-- Pause -->
+  <div id="pause" class="overlay hidden">
+    <div class="menu-card small">
+      <h2>Pause</h2>
+      <button id="resume" class="primary">Weiter</button>
+      <div class="quality">
+        <span>Qualität</span>
+        <button data-q="low">Niedrig</button>
+        <button data-q="medium" class="on">Mittel</button>
+        <button data-q="high">Hoch</button>
+      </div>
+      <label class="row"><input type="checkbox" id="mute" /> Ton aus</label>
+    </div>
+  </div>
+
+  <!-- Abschluss -->
+  <div id="finish" class="overlay hidden">
+    <div class="menu-card">
+      <h2>Blitzeblank!</h2>
+      <p class="sub" id="finish-sub"></p>
+      <button id="again" class="primary">Nochmal</button>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

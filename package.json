@@ -1,0 +1,22 @@
+{
+  "name": "putzen",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Hochdruckreiniger-Simulator im Browser",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "shot": "node scripts/shot.mjs",
+    "test": "node scripts/smoke.mjs"
+  },
+  "dependencies": {
+    "three": "^0.185.1",
+    "three-mesh-bvh": "^0.9.14"
+  },
+  "devDependencies": {
+    "playwright": "^1.56.1",
+    "vite": "^8.2.2"
+  }
+}
